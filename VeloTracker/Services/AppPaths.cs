@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace VeloTracker.Services;
 
 public sealed class AppPaths

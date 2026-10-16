@@ -1,10 +1,11 @@
-using System.Collections.ObjectModel;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using System.Windows.Media;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media;
 using VeloTracker.Models;
 using VeloTracker.Services;
 
@@ -133,9 +134,12 @@ public partial class SettingsViewModel : ObservableObject
         });
         _appearance.Apply(new AppSettings
         {
-            Theme = SelectedTheme, BackgroundImagePath = BackgroundImagePath,
-            OverlayOpacity = Math.Clamp(OverlayOpacity, 0, 100), OverlayColor = OverlayColor,
-            TileBackground = TileBackground, TextureScale = Math.Clamp(TextureScale, 5, 150)
+            Theme = SelectedTheme,
+            BackgroundImagePath = BackgroundImagePath,
+            OverlayOpacity = Math.Clamp(OverlayOpacity, 0, 100),
+            OverlayColor = OverlayColor,
+            TileBackground = TileBackground,
+            TextureScale = Math.Clamp(TextureScale, 5, 150)
         });
         RequestClose?.Invoke(this, EventArgs.Empty);
     }
