@@ -3,9 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="Настройки VeloTracker" Width="650" Height="690" MinHeight="580" WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="{DynamicResource WindowBackgroundBrush}" ExtendsContentIntoTitleBar="True">
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
-        <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ui:TitleBar Grid.Row="0" Title="Настройки VeloTracker" />
+        <Grid Grid.Row="1" Margin="24">
             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
             <StackPanel Margin="0,0,0,16">
                 <TextBlock Text="Настройки" FontSize="25" FontWeight="Bold" />
@@ -18,7 +23,12 @@
                     <Separator Margin="0,18" />
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,6"><ui:SymbolIcon Symbol="Image24" Width="18" Height="18" Margin="0,0,6,0"/><TextBlock Text="Фоновое изображение главного окна" FontWeight="SemiBold" VerticalAlignment="Center" /></StackPanel>
                     <DockPanel>
-                        <ui:Button Command="{Binding BrowseBackgroundCommand}" DockPanel.Dock="Right" Margin="8,0,0,0" Appearance="Secondary"><StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Image24" Width="16" Height="16" Margin="0,0,6,0"/><TextBlock Text="Выбрать…" VerticalAlignment="Center"/></StackPanel></ui:Button>
+                        <ui:Button Command="{Binding ClearBackgroundCommand}" DockPanel.Dock="Right" Margin="8,0,0,0" Appearance="Secondary" ToolTip="Убрать изображение и использовать однотонный фон">
+                            <StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Delete24" Width="16" Height="16" Margin="0,0,6,0"/><TextBlock Text="Убрать" VerticalAlignment="Center"/></StackPanel>
+                        </ui:Button>
+                        <ui:Button Command="{Binding BrowseBackgroundCommand}" DockPanel.Dock="Right" Margin="8,0,0,0" Appearance="Secondary">
+                            <StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Image24" Width="16" Height="16" Margin="0,0,6,0"/><TextBlock Text="Выбрать…" VerticalAlignment="Center"/></StackPanel>
+                        </ui:Button>
                         <ui:TextBox Text="{Binding BackgroundImagePath, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" />
                     </DockPanel>
                     <TextBlock Text="Непрозрачность карточек поверх изображения" FontWeight="SemiBold" Margin="0,16,0,5" />

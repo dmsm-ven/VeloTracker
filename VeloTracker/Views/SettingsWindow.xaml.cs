@@ -1,3 +1,4 @@
+using System.Windows;
 using VeloTracker.ViewModels;
 using Wpf.Ui.Controls;
 

@@ -86,6 +86,13 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ClearBackground()
+    {
+        BackgroundImagePath = null;
+        TileBackground = false;
+    }
+
+    [RelayCommand]
     private void PickOverlayColor()
     {
         var current = ParseColor(OverlayColor);
