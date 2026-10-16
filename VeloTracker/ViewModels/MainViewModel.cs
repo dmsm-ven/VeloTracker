@@ -1,8 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using VeloTracker.Data;
 using VeloTracker.Models;
 using VeloTracker.Services;
@@ -19,9 +19,9 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<EventCategoryOption> Categories { get; } = new()
     {
-        new("Maintenance", "Обслуживание и расходники", SymbolRegular.WrenchScrewdriver24),
-        new("Part", "Покупка / установка детали", SymbolRegular.ShoppingBag24),
-        new("Ride", "Указать пройденное расстояние", SymbolRegular.VehicleBicycle24)
+        new("Ride", "Километраж", SymbolRegular.VehicleBicycle24),
+        new("Maintenance", "Обслуживание", SymbolRegular.WrenchScrewdriver24),
+        new("Part", "Детали", SymbolRegular.ShoppingBag24)
     };
 
     private readonly List<EventOption> _allOptions = new()
@@ -58,6 +58,7 @@ public partial class MainViewModel : ObservableObject
     public bool IsPartEvent => SelectedCategory?.Key == "Part";
     public bool IsMaintenanceEvent => SelectedCategory?.Key == "Maintenance";
     public bool ShowsSubtype => !IsRideEvent;
+    public string ActiveViewTitle => IsRideEvent ? "Километраж" : IsMaintenanceEvent ? "Обслуживание" : "Детали";
     public string HistorySummary => $"Записей в списке: {Events.Count} · Поездок всего: {TotalRideCount} · Пробег всего: {TotalDistanceKm:N1} км";
 
     partial void OnTotalDistanceKmChanged(double value) => OnPropertyChanged(nameof(HistorySummary));
@@ -68,7 +69,7 @@ public partial class MainViewModel : ObservableObject
         _repository = repository;
         _services = services;
         Background = appearance.Background;
-        SelectedCategory = Categories[0];
+        SelectedCategory = Categories[0]; // Километраж — наиболее частый сценарий и стартовый экран.
         RefreshOptions();
     }
 
@@ -78,6 +79,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsPartEvent));
         OnPropertyChanged(nameof(IsMaintenanceEvent));
         OnPropertyChanged(nameof(ShowsSubtype));
+        OnPropertyChanged(nameof(ActiveViewTitle));
         RefreshOptions();
     }
 
@@ -87,6 +89,14 @@ public partial class MainViewModel : ObservableObject
         if (SelectedCategory is null) { SelectedOption = null; return; }
         foreach (var option in _allOptions.Where(x => x.Category == SelectedCategory.Key)) AvailableOptions.Add(option);
         SelectedOption = AvailableOptions.FirstOrDefault();
+    }
+
+    [RelayCommand]
+    private void SelectView(string? categoryKey)
+    {
+        if (string.IsNullOrWhiteSpace(categoryKey)) return;
+        var category = Categories.FirstOrDefault(x => x.Key == categoryKey);
+        if (category is not null) SelectedCategory = category;
     }
 
     [RelayCommand]

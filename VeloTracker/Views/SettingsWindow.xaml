@@ -34,7 +34,9 @@
                     <TextBlock Margin="0,0,0,4" Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding OverlayOpacity, StringFormat=Непрозрачность изображения: {0:0}%}"/>
                     <Slider Width="300" Margin="0,0,0,8" HorizontalAlignment="Left" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding OverlayOpacity}"/>
                     <TextBlock Text="Цвет подложки" Margin="0,0,0,4"/>
-                    <ComboBox Width="200" HorizontalAlignment="Left" ItemsSource="{Binding OverlayColors}" DisplayMemberPath="Name" SelectedValuePath="Hex" SelectedValue="{Binding OverlayColor}" Margin="0,0,0,20"/>
+                    <ComboBox Width="230" HorizontalAlignment="Left" ItemsSource="{Binding OverlayColors}" SelectedValuePath="Hex" SelectedValue="{Binding OverlayColor}" Margin="0,0,0,20">
+                        <ComboBox.ItemTemplate><DataTemplate><StackPanel Orientation="Horizontal"><Border Width="16" Height="16" CornerRadius="4" Background="{Binding Hex}" BorderBrush="{DynamicResource ComboBoxBorderBrush}" BorderThickness="1" Margin="0,0,9,0"/><TextBlock Text="{Binding Name}" VerticalAlignment="Center"/></StackPanel></DataTemplate></ComboBox.ItemTemplate>
+                    </ComboBox>
 
                     <TextBlock Text="Настройки: %AppData%\VeloTracker. База событий: %LocalAppData%\VeloTracker." TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,22,0,0" />
                 </StackPanel>
