@@ -1,10 +1,11 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
 using VeloTracker.Data;
 using VeloTracker.Models;
+using VeloTracker.Services;
 using VeloTracker.Views;
 using Wpf.Ui.Controls;
 
@@ -14,6 +15,7 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly EventRepository _repository;
     private readonly IServiceProvider _services;
+    public AppBackgroundService Background { get; }
 
     public ObservableCollection<EventCategoryOption> Categories { get; } = new()
     {
@@ -61,10 +63,11 @@ public partial class MainViewModel : ObservableObject
     partial void OnTotalDistanceKmChanged(double value) => OnPropertyChanged(nameof(HistorySummary));
     partial void OnTotalRideCountChanged(int value) => OnPropertyChanged(nameof(HistorySummary));
 
-    public MainViewModel(EventRepository repository, IServiceProvider services)
+    public MainViewModel(EventRepository repository, IServiceProvider services, AppearanceService appearance)
     {
         _repository = repository;
         _services = services;
+        Background = appearance.Background;
         SelectedCategory = Categories[0];
         RefreshOptions();
     }
@@ -148,7 +151,9 @@ public partial class MainViewModel : ObservableObject
     private async Task DeleteEventAsync(BikeEvent? item)
     {
         if (item is null) return;
-        if (System.Windows.MessageBox.Show($"Удалить событие «{item.Title}»?", "Подтверждение", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question) != System.Windows.MessageBoxResult.Yes) return;
+        if (System.Windows.MessageBox.Show($"Удалить событие «{item.Title}»?", "Подтверждение",
+            System.Windows.MessageBoxButton.YesNo,
+            MessageBoxImage.Question) != System.Windows.MessageBoxResult.Yes) return;
         try
         {
             await _repository.DeleteAsync(item.Id);

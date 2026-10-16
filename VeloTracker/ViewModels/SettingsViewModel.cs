@@ -1,11 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media;
 using VeloTracker.Models;
 using VeloTracker.Services;
 
@@ -17,14 +14,14 @@ public partial class SettingsViewModel : ObservableObject
     private readonly AppearanceService _appearance;
     private AppSettings? _originalSettings;
     public event EventHandler? RequestClose;
-    public ObservableCollection<string> Themes { get; } = new() { "System", "Light", "Dark" };
+    public string[] Themes => ThemeHelper.Themes;
+    public ColorPreset[] OverlayColors => AppBackgroundService.Presets;
 
-    [ObservableProperty] private string selectedTheme = "System";
+    [ObservableProperty] private string selectedTheme = "Dark";
     [ObservableProperty] private string? backgroundImagePath;
-    [ObservableProperty] private int overlayOpacity = 85;
-    [ObservableProperty] private string overlayColor = "#F4F6F5";
-    [ObservableProperty] private SolidColorBrush overlayColorPreview = new(Color.FromRgb(244, 246, 245));
-    [ObservableProperty] private bool tileBackground;
+    [ObservableProperty] private int overlayOpacity = 40;
+    [ObservableProperty] private string overlayColor = "#000000";
+        [ObservableProperty] private bool tileBackground;
     [ObservableProperty] private int textureScale = 100;
 
     private bool _loaded;
@@ -41,11 +38,11 @@ public partial class SettingsViewModel : ObservableObject
         if (_loaded) return;
         var settings = await _service.LoadAsync();
         _originalSettings = Copy(settings);
-        SelectedTheme = Themes.Contains(settings.Theme) ? settings.Theme : "System";
+        SelectedTheme = Themes.Contains(settings.Theme, StringComparer.OrdinalIgnoreCase) ? settings.Theme : "Dark";
         BackgroundImagePath = settings.BackgroundImagePath;
         OverlayOpacity = Math.Clamp(settings.OverlayOpacity, 0, 100);
-        OverlayColor = settings.OverlayColor;
-        OverlayColorPreview = new SolidColorBrush(ParseColor(settings.OverlayColor));
+        OverlayColor = OverlayColors.Any(x => string.Equals(x.Hex, settings.OverlayColor, StringComparison.OrdinalIgnoreCase))
+            ? settings.OverlayColor : "#000000";
         TileBackground = settings.TileBackground;
         TextureScale = Math.Clamp(settings.TextureScale, 5, 150);
         _loaded = true;
@@ -55,11 +52,7 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnSelectedThemeChanged(string value) => ApplyPreview();
     partial void OnBackgroundImagePathChanged(string? value) => ApplyPreview();
     partial void OnOverlayOpacityChanged(int value) => ApplyPreview();
-    partial void OnOverlayColorChanged(string value)
-    {
-        OverlayColorPreview = new SolidColorBrush(ParseColor(value));
-        ApplyPreview();
-    }
+    partial void OnOverlayColorChanged(string value) => ApplyPreview();
     partial void OnTileBackgroundChanged(bool value) => ApplyPreview();
     partial void OnTextureScaleChanged(int value) => ApplyPreview();
 
@@ -92,36 +85,6 @@ public partial class SettingsViewModel : ObservableObject
         TileBackground = false;
     }
 
-    [RelayCommand]
-    private void PickOverlayColor()
-    {
-        var current = ParseColor(OverlayColor);
-        var native = new ChooseColorDialog
-        {
-            StructSize = Marshal.SizeOf<ChooseColorDialog>(),
-            Flags = 0x00000001 | 0x00000002,
-            RgbResult = (uint)(current.R | (current.G << 8) | (current.B << 16))
-        };
-        native.CustomColors = Marshal.AllocHGlobal(16 * sizeof(uint));
-        try
-        {
-            Marshal.Copy(new int[16], 0, native.CustomColors, 16);
-            if (!ChooseColorW(ref native)) return;
-        }
-        finally { Marshal.FreeHGlobal(native.CustomColors); }
-
-        var r = (byte)(native.RgbResult & 0xFF);
-        var g = (byte)((native.RgbResult >> 8) & 0xFF);
-        var b = (byte)((native.RgbResult >> 16) & 0xFF);
-        OverlayColor = $"#{r:X2}{g:X2}{b:X2}";
-    }
-
-    private static Color ParseColor(string value)
-    {
-        try { return (Color)ColorConverter.ConvertFromString(value); }
-        catch { return Color.FromRgb(244, 246, 245); }
-    }
-
     private static AppSettings Copy(AppSettings settings) => new()
     {
         Theme = settings.Theme,
@@ -131,24 +94,6 @@ public partial class SettingsViewModel : ObservableObject
         TileBackground = settings.TileBackground,
         TextureScale = settings.TextureScale
     };
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    private struct ChooseColorDialog
-    {
-        public int StructSize;
-        public IntPtr Owner;
-        public IntPtr Instance;
-        public uint RgbResult;
-        public IntPtr CustomColors;
-        public uint Flags;
-        public IntPtr CustomData;
-        public IntPtr Hook;
-        public IntPtr TemplateName;
-    }
-
-    [DllImport("comdlg32.dll", EntryPoint = "ChooseColorW", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool ChooseColorW(ref ChooseColorDialog dialog);
 
     [RelayCommand]
     private async Task SaveAsync()

@@ -36,6 +36,7 @@ public partial class App : Application
                 {
                     services.AddSingleton(paths);
                     services.AddSingleton<SettingsService>();
+                    services.AddSingleton<AppBackgroundService>();
                     services.AddSingleton<AppearanceService>();
                     services.AddSingleton<DatabaseInitializer>();
                     services.AddSingleton<EventRepository>();

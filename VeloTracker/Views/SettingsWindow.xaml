@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="Настройки VeloTracker" Width="650" Height="690" MinHeight="580" WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource WindowBackgroundBrush}" ExtendsContentIntoTitleBar="True">
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        ExtendsContentIntoTitleBar="True">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -18,38 +18,24 @@
             </StackPanel>
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
-                    <TextBlock Text="Тема приложения" FontWeight="SemiBold" Margin="0,0,0,6" />
-                    <ComboBox ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}" Height="36" />
-                    <Separator Margin="0,18" />
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6"><ui:SymbolIcon Symbol="Image24" Width="18" Height="18" Margin="0,0,6,0"/><TextBlock Text="Фоновое изображение главного окна" FontWeight="SemiBold" VerticalAlignment="Center" /></StackPanel>
-                    <DockPanel>
-                        <ui:Button Command="{Binding ClearBackgroundCommand}" DockPanel.Dock="Right" Margin="8,0,0,0" Appearance="Secondary" ToolTip="Убрать изображение и использовать однотонный фон">
-                            <StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Delete24" Width="16" Height="16" Margin="0,0,6,0"/><TextBlock Text="Убрать" VerticalAlignment="Center"/></StackPanel>
-                        </ui:Button>
-                        <ui:Button Command="{Binding BrowseBackgroundCommand}" DockPanel.Dock="Right" Margin="8,0,0,0" Appearance="Secondary">
-                            <StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Image24" Width="16" Height="16" Margin="0,0,6,0"/><TextBlock Text="Выбрать…" VerticalAlignment="Center"/></StackPanel>
-                        </ui:Button>
-                        <ui:TextBox Text="{Binding BackgroundImagePath, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" />
-                    </DockPanel>
-                    <TextBlock Text="Непрозрачность карточек поверх изображения" FontWeight="SemiBold" Margin="0,16,0,5" />
-                    <DockPanel>
-                        <TextBlock Text="{Binding OverlayOpacity, StringFormat={}{0}%}" DockPanel.Dock="Right" VerticalAlignment="Center" Width="55" TextAlignment="Right" />
-                        <Slider Minimum="20" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding OverlayOpacity}" />
-                    </DockPanel>
-                    <TextBlock Text="Цвет карточек" FontWeight="SemiBold" Margin="0,14,0,5" />
-                    <DockPanel LastChildFill="True">
-                        <ui:Button Command="{Binding PickOverlayColorCommand}" DockPanel.Dock="Left" Margin="0,0,10,0" Padding="8,5" Appearance="Secondary">
-                            <StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Color24" Width="18" Height="18" Margin="0,0,6,0"/><TextBlock Text="Выбрать цвет…" VerticalAlignment="Center"/></StackPanel>
-                        </ui:Button>
-                        <Border Width="40" Height="32" BorderBrush="#808080" BorderThickness="1" CornerRadius="4" Background="{Binding OverlayColorPreview}" HorizontalAlignment="Left" />
-                        <TextBlock Text="{Binding OverlayColor}" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
-                    </DockPanel>
-                    <CheckBox Content="Замощать изображение (для бесшовных текстур)" IsChecked="{Binding TileBackground}" Margin="0,16,0,6" />
-                    <TextBlock Text="Масштаб текстуры" FontWeight="SemiBold" Margin="0,8,0,5" />
-                    <DockPanel>
-                        <TextBlock Text="{Binding TextureScale, StringFormat={}{0}%}" DockPanel.Dock="Right" VerticalAlignment="Center" Width="55" TextAlignment="Right" />
-                        <Slider Minimum="5" Maximum="150" TickFrequency="5" IsSnapToTickEnabled="True" IsEnabled="{Binding TileBackground}" Value="{Binding TextureScale}" />
-                    </DockPanel>
+                    <TextBlock Text="Тема" Margin="0,0,0,4"/>
+                    <ComboBox Width="120" Margin="0,0,0,24" HorizontalAlignment="Left" ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}"/>
+                    <Separator Margin="0,0,0,18"/>
+                    <TextBlock Text="Фоновое изображение" Margin="0,0,0,4"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <ui:Button Margin="0,0,8,0" Command="{Binding BrowseBackgroundCommand}" Content="Выбрать файл…"/>
+                        <ui:Button Command="{Binding ClearBackgroundCommand}" Content="Убрать фон" Appearance="Secondary"/>
+                    </StackPanel>
+                    <CheckBox Content="Замостить изображение (для бесшовных текстур)" IsChecked="{Binding TileBackground}" Margin="0,0,0,8"/>
+                    <StackPanel IsEnabled="{Binding TileBackground}" Margin="0,0,0,8">
+                        <TextBlock Margin="0,0,0,4" Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding TextureScale, StringFormat=Масштаб текстуры: {0:0}%}"/>
+                        <Slider Width="300" HorizontalAlignment="Left" Minimum="5" Maximum="150" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding TextureScale}"/>
+                    </StackPanel>
+                    <TextBlock Margin="0,0,0,4" Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding OverlayOpacity, StringFormat=Непрозрачность изображения: {0:0}%}"/>
+                    <Slider Width="300" Margin="0,0,0,8" HorizontalAlignment="Left" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding OverlayOpacity}"/>
+                    <TextBlock Text="Цвет подложки" Margin="0,0,0,4"/>
+                    <ComboBox Width="200" HorizontalAlignment="Left" ItemsSource="{Binding OverlayColors}" DisplayMemberPath="Name" SelectedValuePath="Hex" SelectedValue="{Binding OverlayColor}" Margin="0,0,0,20"/>
+
                     <TextBlock Text="Настройки: %AppData%\VeloTracker. База событий: %LocalAppData%\VeloTracker." TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,22,0,0" />
                 </StackPanel>
             </ScrollViewer>
