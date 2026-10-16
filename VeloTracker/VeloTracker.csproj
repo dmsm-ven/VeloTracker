@@ -3,11 +3,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <RootNamespace>VeloTracker</RootNamespace>
-    <AssemblyName>VeloTracker</AssemblyName>
-    <ApplicationIcon Condition="Exists('Resources\\VeloTracker.ico')">Resources\VeloTracker.ico</ApplicationIcon>
+	<ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\app-icon.ico" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Dapper" />
