@@ -20,6 +20,9 @@ public sealed class AppearanceService(AppBackgroundService background)
         var surface=new SolidColorBrush(surfaceColor); surface.Freeze(); SetBrush("SurfaceBrush",surface);
         var alternateColor=ParseColor(dark?"#202824":"#F8FAF8",Colors.WhiteSmoke); alternateColor.A=218;
         var alternate=new SolidColorBrush(alternateColor); alternate.Freeze(); SetBrush("AlternateRowBrush",alternate);
+        SetBrush("DataGridHeaderBackgroundBrush", new SolidColorBrush(ParseColor(dark ? "#26332C" : "#E4EBE6", Colors.LightGray)));
+        SetBrush("DataGridHeaderTextBrush", new SolidColorBrush(ParseColor(dark ? "#F0F5F1" : "#17211D", Colors.Black)));
+        SetBrush("DataGridHeaderBorderBrush", new SolidColorBrush(ParseColor(dark ? "#3B4841" : "#C5D0C8", Colors.Gray)));
         SetBrush("ComboBoxSurfaceBrush", new SolidColorBrush(ParseColor(dark ? "#202824" : "#FFFFFF", Colors.White)));
         SetBrush("ComboBoxPopupBrush", new SolidColorBrush(ParseColor(dark ? "#1A211D" : "#FFFFFF", Colors.White)));
         SetBrush("ComboBoxBorderBrush", new SolidColorBrush(ParseColor(dark ? "#3B4841" : "#D4DDD7", Colors.Gray)));

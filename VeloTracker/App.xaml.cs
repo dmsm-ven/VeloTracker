@@ -44,6 +44,8 @@ public partial class App : Application
                     services.AddSingleton<MainWindow>();
                     services.AddTransient<SettingsViewModel>();
                     services.AddTransient<SettingsWindow>();
+                    services.AddTransient<StatisticsViewModel>();
+                    services.AddTransient<StatisticsWindow>();
                 }).Build();
 
             await _host.StartAsync();

@@ -41,6 +41,9 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<EventOption> AvailableOptions { get; } = new();
     public ObservableCollection<BikeEvent> Events { get; } = new();
+    public ObservableCollection<BikeEvent> RideEvents { get; } = new();
+    public ObservableCollection<BikeEvent> MaintenanceEvents { get; } = new();
+    public ObservableCollection<BikeEvent> PartEvents { get; } = new();
 
     [ObservableProperty] private double totalDistanceKm;
     [ObservableProperty] private int totalRideCount;
@@ -50,6 +53,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string notes = string.Empty;
     [ObservableProperty] private string itemName = string.Empty;
     [ObservableProperty] private string distanceKmText = "20";
+    [ObservableProperty] private string averageTimeMinutesText = string.Empty;
     [ObservableProperty] private string costText = string.Empty;
     [ObservableProperty] private string statusMessage = "Готово к работе";
     [ObservableProperty] private bool isBusy;
@@ -104,6 +108,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (IsBusy || SelectedCategory is null || (!IsRideEvent && SelectedOption is null)) return;
         double? distance = null;
+        int? averageTimeMinutes = null;
         decimal? cost = null;
 
         if (IsRideEvent)
@@ -115,6 +120,15 @@ public partial class MainViewModel : ObservableObject
                 return;
             }
             distance = parsed;
+            if (!string.IsNullOrWhiteSpace(AverageTimeMinutesText))
+            {
+                if (!int.TryParse(AverageTimeMinutesText, NumberStyles.Integer, CultureInfo.CurrentCulture, out var parsedMinutes) || parsedMinutes <= 0 || parsedMinutes > 1440)
+                {
+                    StatusMessage = "Среднее время должно быть целым числом минут от 1 до 1440.";
+                    return;
+                }
+                averageTimeMinutes = parsedMinutes;
+            }
         }
         else if (IsPartEvent && !string.IsNullOrWhiteSpace(CostText))
         {
@@ -140,6 +154,7 @@ public partial class MainViewModel : ObservableObject
                 Title = title,
                 ItemName = IsPartEvent && !string.IsNullOrWhiteSpace(ItemName) ? ItemName.Trim() : null,
                 DistanceKm = distance,
+                AverageTimeMinutes = averageTimeMinutes,
                 Cost = cost,
                 Notes = !IsRideEvent && !string.IsNullOrWhiteSpace(Notes) ? Notes.Trim() : null,
                 CreatedAtUtc = DateTime.UtcNow,
@@ -150,7 +165,7 @@ public partial class MainViewModel : ObservableObject
             Notes = string.Empty;
             ItemName = string.Empty;
             CostText = string.Empty;
-            if (IsRideEvent) DistanceKmText = string.Empty;
+            if (IsRideEvent) { DistanceKmText = string.Empty; AverageTimeMinutesText = string.Empty; }
             await LoadEventsAsync();
         }
         catch (Exception ex) { StatusMessage = $"Не удалось сохранить событие: {ex.Message}"; }
@@ -183,11 +198,20 @@ public partial class MainViewModel : ObservableObject
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Events.Clear();
+                RideEvents.Clear();
+                MaintenanceEvents.Clear();
+                PartEvents.Clear();
                 foreach (var item in items)
                 {
                     item.Icon = _allOptions.FirstOrDefault(x => x.Key == item.EventType)?.Icon ??
                                 (item.Category == "Ride" ? SymbolRegular.VehicleBicycle24 : SymbolRegular.Wrench24);
                     Events.Add(item);
+                    switch (item.Category)
+                    {
+                        case "Ride": RideEvents.Add(item); break;
+                        case "Maintenance": MaintenanceEvents.Add(item); break;
+                        case "Part": PartEvents.Add(item); break;
+                    }
                 }
                 TotalRideCount = summary.RideCount;
                 TotalDistanceKm = summary.TotalDistanceKm;
@@ -195,6 +219,14 @@ public partial class MainViewModel : ObservableObject
             });
         }
         catch (Exception ex) { StatusMessage = $"Ошибка чтения истории: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private void OpenStatistics()
+    {
+        if (_services.GetService(typeof(StatisticsWindow)) is not StatisticsWindow window) return;
+        window.Owner = Application.Current.MainWindow;
+        window.ShowDialog();
     }
 
     [RelayCommand]

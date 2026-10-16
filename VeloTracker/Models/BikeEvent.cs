@@ -1,4 +1,4 @@
-using Wpf.Ui.Controls;
+﻿using Wpf.Ui.Controls;
 
 namespace VeloTracker.Models;
 
@@ -11,6 +11,7 @@ public sealed class BikeEvent
     public string Title { get; set; } = "Замена смазки цепи";
     public string? ItemName { get; set; }
     public double? DistanceKm { get; set; }
+    public int? AverageTimeMinutes { get; set; }
     public decimal? Cost { get; set; }
     public string? Notes { get; set; }
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
