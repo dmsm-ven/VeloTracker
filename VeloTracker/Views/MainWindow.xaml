@@ -64,11 +64,7 @@
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Text="{Binding ActiveViewTitle}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
                     <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.15*"/>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1.3*"/>
-                        </Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="1.15*"/><ColumnDefinition Width="1*"/><ColumnDefinition Width="1.3*"/></Grid.ColumnDefinitions>
                         <!-- First field depends on the active tile. -->
                         <StackPanel Grid.Column="0" Margin="0,0,18,0">
                             <StackPanel Visibility="{Binding IsRideEvent, Converter={StaticResource BoolToVis}}">
@@ -80,19 +76,7 @@
                             <StackPanel Visibility="{Binding ShowsSubtype, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Тип события" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,6"/>
                                 <ComboBox ItemsSource="{Binding AvailableOptions}" SelectedItem="{Binding SelectedOption}" Height="42">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <ui:SymbolIcon x:Name="OptionIcon" Symbol="{Binding Icon}" Width="19" Height="19" Margin="0,0,9,0" Foreground="{DynamicResource ComboBoxIconBrush}"/>
-                                                <TextBlock Text="{Binding Label}" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                            <DataTemplate.Triggers>
-                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ComboBoxItem}}" Value="True">
-                                                    <Setter TargetName="OptionIcon" Property="Foreground" Value="{DynamicResource ComboBoxHighlightTextBrush}"/>
-                                                </DataTrigger>
-                                            </DataTemplate.Triggers>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
+                                    <ComboBox.ItemTemplate><DataTemplate><StackPanel Orientation="Horizontal"><ui:SymbolIcon x:Name="OptionIcon" Symbol="{Binding Icon}" Width="19" Height="19" Margin="0,0,9,0" Foreground="{DynamicResource ComboBoxIconBrush}"/><TextBlock Text="{Binding Label}" VerticalAlignment="Center"/></StackPanel><DataTemplate.Triggers><DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ComboBoxItem}}" Value="True"><Setter TargetName="OptionIcon" Property="Foreground" Value="{DynamicResource ComboBoxHighlightTextBrush}"/></DataTrigger></DataTemplate.Triggers></DataTemplate></ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
                         </StackPanel>
@@ -115,6 +99,10 @@
                             <TextBlock Visibility="{Binding IsRideEvent, Converter={StaticResource BoolToVis}}" Text="Записывай каждую поездку — общий километраж и количество поездок пересчитаются автоматически." TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center" Margin="0,8,0,0"/>
                         </StackPanel>
                     </Grid>
+                    <Grid Grid.Row="2" Margin="0,18,0,0">
+                        <TextBlock Text="Для выбранного типа сохраняются только относящиеся к нему поля." Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" Margin="0,0,220,0"/>
+                        <ui:Button Command="{Binding AddEventCommand}" Appearance="Primary" HorizontalAlignment="Right" MinWidth="205" IsDefault="True"><StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="Add24" Width="18" Height="18" Margin="0,0,7,0"/><TextBlock Text="Добавить в журнал" VerticalAlignment="Center" FontSize="14"/></StackPanel></ui:Button>
+                    </Grid>
                 </Grid>
             </ui:Card>
 
@@ -130,7 +118,36 @@
                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                                  BorderThickness="0" RowHeight="44" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
                                  RowBackground="{DynamicResource SurfaceBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" SelectionMode="Single">
-                        <DataGrid.ColumnHeaderStyle><Style TargetType="DataGridColumnHeader"><Setter Property="Padding" Value="10,8"/><Setter Property="MinHeight" Value="42"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="ContentTemplate"><Setter.Value><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Center"/></DataTemplate></Setter.Value></Setter></Style></DataGrid.ColumnHeaderStyle>
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="{DynamicResource DataGridHeaderBackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DataGridHeaderTextBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource DataGridHeaderBorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                <Setter Property="Padding" Value="12,9"/>
+                                <Setter Property="MinHeight" Value="48"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="DataGridColumnHeader">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    TextElement.Foreground="{TemplateBinding Foreground}"
+                                                    TextElement.FontWeight="{TemplateBinding FontWeight}">
+                                                <ContentPresenter ContentSource="Content"
+                                                                  RecognizesAccessKey="True"
+                                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                  Margin="{TemplateBinding Padding}"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дата поездки" Binding="{Binding EventDate, StringFormat={}{0:dd.MM.yyyy}}" Width="1.1*"/>
                             <DataGridTextColumn Header="Пробег, км" Binding="{Binding DistanceKm, StringFormat={}{0:N1}}" Width="1.1*"/>
@@ -142,7 +159,36 @@
                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                                  BorderThickness="0" RowHeight="44" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
                                  RowBackground="{DynamicResource SurfaceBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" SelectionMode="Single">
-                        <DataGrid.ColumnHeaderStyle><Style TargetType="DataGridColumnHeader"><Setter Property="Padding" Value="10,8"/><Setter Property="MinHeight" Value="42"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="ContentTemplate"><Setter.Value><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Center"/></DataTemplate></Setter.Value></Setter></Style></DataGrid.ColumnHeaderStyle>
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="{DynamicResource DataGridHeaderBackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DataGridHeaderTextBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource DataGridHeaderBorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                <Setter Property="Padding" Value="12,9"/>
+                                <Setter Property="MinHeight" Value="48"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="DataGridColumnHeader">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    TextElement.Foreground="{TemplateBinding Foreground}"
+                                                    TextElement.FontWeight="{TemplateBinding FontWeight}">
+                                                <ContentPresenter ContentSource="Content"
+                                                                  RecognizesAccessKey="True"
+                                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                  Margin="{TemplateBinding Padding}"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дата" Binding="{Binding EventDate, StringFormat={}{0:dd.MM.yyyy}}" Width="1.1*"/>
                             <DataGridTextColumn Header="Выполненное обслуживание" Binding="{Binding Title}" Width="2.4*"/>
@@ -154,7 +200,36 @@
                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                                  BorderThickness="0" RowHeight="44" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
                                  RowBackground="{DynamicResource SurfaceBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" SelectionMode="Single">
-                        <DataGrid.ColumnHeaderStyle><Style TargetType="DataGridColumnHeader"><Setter Property="Padding" Value="10,8"/><Setter Property="MinHeight" Value="42"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="ContentTemplate"><Setter.Value><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Center"/></DataTemplate></Setter.Value></Setter></Style></DataGrid.ColumnHeaderStyle>
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="{DynamicResource DataGridHeaderBackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DataGridHeaderTextBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource DataGridHeaderBorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                <Setter Property="Padding" Value="12,9"/>
+                                <Setter Property="MinHeight" Value="48"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="DataGridColumnHeader">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    TextElement.Foreground="{TemplateBinding Foreground}"
+                                                    TextElement.FontWeight="{TemplateBinding FontWeight}">
+                                                <ContentPresenter ContentSource="Content"
+                                                                  RecognizesAccessKey="True"
+                                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                  Margin="{TemplateBinding Padding}"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дата" Binding="{Binding EventDate, StringFormat={}{0:dd.MM.yyyy}}" Width="1.1*"/>
                             <DataGridTextColumn Header="Деталь / событие" Binding="{Binding Title}" Width="1.8*"/>
