@@ -1,8 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using VeloTracker.Data;
 using VeloTracker.Models;
 using VeloTracker.Services;
@@ -26,16 +26,50 @@ public partial class MainViewModel : ObservableObject
 
     private readonly List<EventOption> _allOptions = new()
     {
+        // Обслуживание велосипеда
         new("LubricantChanged", "Замена смазки цепи", SymbolRegular.Drop24, "Maintenance"),
         new("TireChanged", "Замена покрышки", SymbolRegular.VehicleBicycle24, "Maintenance"),
         new("ChainChanged", "Замена цепи", SymbolRegular.Link24, "Maintenance"),
         new("BrakePadsChanged", "Замена тормозных колодок", SymbolRegular.ShieldCheckmark24, "Maintenance"),
         new("TubeChanged", "Замена камеры", SymbolRegular.Circle24, "Maintenance"),
+
+        // Запасные части и компоненты
         new("PurchasedBeacon", "Покупка маячка", SymbolRegular.Location24, "Part"),
         new("RearDerailleurChanged", "Задний переключатель", SymbolRegular.WrenchScrewdriver24, "Part"),
+        new("FrontDerailleurChanged", "Передний переключатель", SymbolRegular.WrenchScrewdriver24, "Part"),
         new("FreewheelChanged", "Трещотка", SymbolRegular.DriveTrain24, "Part"),
         new("CassetteChanged", "Кассета", SymbolRegular.Settings24, "Part"),
+        new("ChainPartChanged", "Цепь", SymbolRegular.Link24, "Part"),
+        new("CranksetChanged", "Система шатунов", SymbolRegular.Settings24, "Part"),
+        new("ChainringChanged", "Передняя звезда", SymbolRegular.Settings24, "Part"),
+        new("BottomBracketChanged", "Каретка", SymbolRegular.Settings24, "Part"),
         new("PedalsChanged", "Педали", SymbolRegular.VehicleBicycle24, "Part"),
+        new("RearHubChanged", "Задняя втулка", SymbolRegular.Settings24, "Part"),
+        new("FrontHubChanged", "Передняя втулка", SymbolRegular.Settings24, "Part"),
+        new("RearWheelChanged", "Заднее колесо", SymbolRegular.VehicleBicycle24, "Part"),
+        new("FrontWheelChanged", "Переднее колесо", SymbolRegular.VehicleBicycle24, "Part"),
+        new("RimChanged", "Обод", SymbolRegular.Circle24, "Part"),
+        new("SpokesChanged", "Спицы", SymbolRegular.Settings24, "Part"),
+        new("TirePartChanged", "Покрышка", SymbolRegular.Circle24, "Part"),
+        new("TubePartChanged", "Камера", SymbolRegular.Circle24, "Part"),
+        new("SaddleChanged", "Седло", SymbolRegular.VehicleBicycle24, "Part"),
+        new("SeatpostChanged", "Подседельный штырь", SymbolRegular.WrenchScrewdriver24, "Part"),
+        new("HandlebarChanged", "Руль", SymbolRegular.VehicleBicycle24, "Part"),
+        new("GripsChanged", "Грипсы / рукоятки", SymbolRegular.VehicleBicycle24, "Part"),
+        new("StemChanged", "Вынос руля", SymbolRegular.WrenchScrewdriver24, "Part"),
+        new("HeadsetChanged", "Рулевая колонка", SymbolRegular.Settings24, "Part"),
+        new("BrakeRotorChanged", "Тормозной ротор / диск", SymbolRegular.Circle24, "Part"),
+        new("BrakeCaliperChanged", "Тормозной калипер", SymbolRegular.ShieldCheckmark24, "Part"),
+        new("BrakeLeverChanged", "Тормозная ручка", SymbolRegular.WrenchScrewdriver24, "Part"),
+        new("BrakeCableChanged", "Тормозной трос / гидролиния", SymbolRegular.Link24, "Part"),
+        new("ShifterChanged", "Манетка переключения передач", SymbolRegular.Settings24, "Part"),
+        new("GearCableChanged", "Трос переключения передач", SymbolRegular.Link24, "Part"),
+        new("AxleChanged", "Ось колеса", SymbolRegular.Settings24, "Part"),
+        new("QuickReleaseChanged", "Эксцентрик / зажим колеса", SymbolRegular.Settings24, "Part"),
+        new("MudguardChanged", "Крылья", SymbolRegular.VehicleBicycle24, "Part"),
+        new("KickstandChanged", "Подножка", SymbolRegular.VehicleBicycle24, "Part"),
+        new("BellChanged", "Звонок", SymbolRegular.VehicleBicycle24, "Part"),
+        new("LightChanged", "Фара / задний фонарь", SymbolRegular.Location24, "Part"),
         new("OtherPart", "Другая деталь", SymbolRegular.Toolbox24, "Part")
     };
 
