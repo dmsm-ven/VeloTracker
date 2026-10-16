@@ -1,90 +1,180 @@
-<Window x:Class="VeloTracker.Views.MainWindow"
+<ui:FluentWindow x:Class="VeloTracker.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-        Title="VeloTracker" Height="780" Width="1180" MinHeight="650" MinWidth="950"
+        Title="VeloTracker" Height="800" Width="1220" MinHeight="660" MinWidth="980"
         WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowImageBrush}">
     <Grid Background="{DynamicResource WindowOverlayBrush}">
-      <Grid Margin="26">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="0,0,0,22">
-            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-            <StackPanel>
-                <TextBlock Text="VeloTracker" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" />
-                <TextBlock Text="Журнал обслуживания и велопоездок" FontSize="13" Margin="0,4,0,0" Foreground="{DynamicResource SecondaryTextBrush}" />
-            </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Command="{Binding OpenSettingsCommand}" Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0">
-                    <StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Settings24" Width="18" Height="18" Margin="0,0,7,0"/><TextBlock Text="Настройки" VerticalAlignment="Center"/></StackPanel>
-                </Button>
-            </StackPanel>
-        </Grid>
+        <Grid Margin="26">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,22">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="VeloTracker" FontSize="28" FontWeight="Bold" />
+                    <TextBlock Text="Журнал обслуживания, деталей и велопоездок" FontSize="13" Margin="0,4,0,0" Foreground="{DynamicResource SecondaryTextBrush}" />
+                </StackPanel>
+                <ui:Button Grid.Column="1" Command="{Binding OpenSettingsCommand}" VerticalAlignment="Center" Appearance="Secondary">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Settings24" Width="18" Height="18" Margin="0,0,7,0"/>
+                        <TextBlock Text="Настройки" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ui:Button>
+            </Grid>
 
-        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" CornerRadius="14" Padding="20" Margin="0,0,0,18">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="1.1*"/><ColumnDefinition Width="1.5*"/><ColumnDefinition Width="1.3*"/></Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Margin="0,0,18,0">
-                    <TextBlock Text="НОВОЕ СОБЫТИЕ" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,8" />
-                    <ComboBox ItemsSource="{Binding EventOptions}" SelectedItem="{Binding SelectedOption}" DisplayMemberPath="Label" Height="38" />
-                    <DatePicker SelectedDate="{Binding SelectedDate}" Margin="0,10,0,0" Height="34" />
-                    <StackPanel Margin="0,10,0,0">
+            <ui:Card Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="20" Margin="0,0,0,18">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.15*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="1.25*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,18,0">
+                        <TextBlock Text="НОВОЕ СОБЫТИЕ" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,8" />
+                        <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" Height="38">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="{Binding Icon}" Width="19" Height="19" Margin="0,0,9,0"/>
+                                        <TextBlock Text="{Binding Label}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <StackPanel Margin="0,10,0,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRideEvent}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock Text="Тип события" Margin="0,0,0,5" Foreground="{DynamicResource SecondaryTextBrush}" />
+                            <ComboBox ItemsSource="{Binding AvailableOptions}" SelectedItem="{Binding SelectedOption}" Height="38">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:SymbolIcon Symbol="{Binding Icon}" Width="19" Height="19" Margin="0,0,9,0"/>
+                                            <TextBlock Text="{Binding Label}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                        <TextBlock Text="Дата события" Margin="0,12,0,5" Foreground="{DynamicResource SecondaryTextBrush}" />
+                        <DatePicker SelectedDate="{Binding SelectedDate}" Height="34" />
+                        <StackPanel Margin="0,12,0,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRideEvent}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock Text="Пройдено, км" Margin="0,0,0,5" />
+                            <ui:TextBox Text="{Binding DistanceKmText, UpdateSourceTrigger=PropertyChanged}" Width="130" HorizontalAlignment="Left" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="0,0,18,0">
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers><DataTrigger Binding="{Binding IsRideEvent}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRideEvent}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <TextBlock Text="Километры" VerticalAlignment="Center" Margin="0,0,0,5" />
-                        <TextBox Text="{Binding DistanceKmText, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left" />
+                        <TextBlock Text="ДЕТАЛИ" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,8" />
+                        <StackPanel>
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsPartEvent}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <ui:TextBox Text="{Binding ItemName, UpdateSourceTrigger=PropertyChanged}" ToolTip="Модель, бренд или артикул" Height="36" />
+                            <TextBlock Text="Название / модель / бренд" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,8" />
+                            <ui:TextBox Text="{Binding CostText, UpdateSourceTrigger=PropertyChanged}" Height="36" ToolTip="Стоимость, необязательно" />
+                            <TextBlock Text="Стоимость, необязательно" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <TextBlock Text="Примечание" FontWeight="SemiBold" Margin="0,14,0,5" />
+                        <ui:TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Height="82" />
                     </StackPanel>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="0,0,18,0">
-                    <TextBlock Text="ДЕТАЛИ" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,8" />
-                    <TextBox Text="{Binding ItemName, UpdateSourceTrigger=PropertyChanged}" ToolTip="Название, модель, бренд или артикул" Height="36" />
-                    <TextBlock Text="Название / модель / бренд" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,8" />
-                    <TextBox Text="{Binding CostText, UpdateSourceTrigger=PropertyChanged}" Height="36" ToolTip="Стоимость, необязательно" />
-                    <TextBlock Text="Стоимость, необязательно" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,0" />
-                </StackPanel>
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="ПРИМЕЧАНИЕ" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,8" />
-                    <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Height="100" />
-                    <Button Command="{Binding AddEventCommand}" Background="{DynamicResource AccentBrush}" Foreground="White" HorizontalAlignment="Stretch" Margin="0,12,0,0" IsDefault="True">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="Add24" Width="18" Height="18" Margin="0,0,7,0"/><TextBlock Text="Добавить в журнал" VerticalAlignment="Center"/></StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
-        </Border>
 
-        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="14" Padding="20">
-            <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                <DockPanel Margin="0,0,0,12">
-                    <TextBlock Text="История событий" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
-                    <TextBlock Text="{Binding HistorySummary}" DockPanel.Dock="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" />
-                </DockPanel>
-                <DataGrid Grid.Row="1" ItemsSource="{Binding Events}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" BorderThickness="0" RowHeight="48" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}" RowBackground="{DynamicResource SurfaceBrush}"
-                          AlternatingRowBackground="{DynamicResource AlternateRowBrush}" SelectionMode="Single">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="" Binding="{Binding Icon}" Width="42" />
-                        <DataGridTextColumn Header="Дата" Binding="{Binding EventDate, StringFormat={}{0:dd.MM.yyyy}}" Width="105" />
-                        <DataGridTextColumn Header="Событие" Binding="{Binding Title}" Width="2*" />
-                        <DataGridTextColumn Header="Детали" Binding="{Binding ItemName}" Width="1.2*" />
-                        <DataGridTextColumn Header="Пробег" Binding="{Binding DistanceKm, StringFormat={}{0:N1} км}" Width="95" />
-                        <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost, StringFormat={}{0:N2}}" Width="100" />
-                        <DataGridTextColumn Header="Примечание" Binding="{Binding Notes}" Width="2*" />
-                        <DataGridTemplateColumn Header="" Width="58">
-                            <DataGridTemplateColumn.CellTemplate><DataTemplate>
-                                <Button ToolTip="Удалить событие" Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Background="#FBE9E7" Foreground="#9B3026" Padding="8,4" Margin="0"><ui:SymbolIcon Symbol="Delete24" Width="16" Height="16"/></Button>
-                            </DataTemplate></DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Grid>
-        </Border>
-        <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" Margin="2,12,0,0" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" />
-      </Grid>
+                    <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                        <TextBlock Text="" />
+                        <TextBlock Text="Для выбранного типа сохраняются только относящиеся к нему поля." TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,14" />
+                        <ui:Button Command="{Binding AddEventCommand}" Appearance="Primary" HorizontalAlignment="Stretch" IsDefault="True">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <ui:SymbolIcon Symbol="Add24" Width="18" Height="18" Margin="0,0,7,0"/>
+                                <TextBlock Text="Добавить в журнал" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:Button>
+                    </StackPanel>
+                </Grid>
+            </ui:Card>
+
+            <ui:Card Grid.Row="2" Background="{DynamicResource SurfaceBrush}" Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Margin="0,0,0,12">
+                        <TextBlock Text="История событий" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding HistorySummary}" DockPanel.Dock="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <ui:DataGrid Grid.Row="1" ItemsSource="{Binding Events}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal" BorderThickness="0" RowHeight="48" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}" RowBackground="{DynamicResource SurfaceBrush}"
+                              AlternatingRowBackground="{DynamicResource AlternateRowBrush}" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="" Width="42">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ui:SymbolIcon Symbol="{Binding Icon}" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Дата" Binding="{Binding EventDate, StringFormat={}{0:dd.MM.yyyy}}" Width="105" />
+                            <DataGridTextColumn Header="Событие" Binding="{Binding Title}" Width="2*" />
+                            <DataGridTextColumn Header="Детали" Binding="{Binding ItemName}" Width="1.2*" />
+                            <DataGridTextColumn Header="Пробег" Binding="{Binding DistanceKm, StringFormat={}{0:N1} км}" Width="95" />
+                            <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost, StringFormat={}{0:N2}}" Width="100" />
+                            <DataGridTextColumn Header="Примечание" Binding="{Binding Notes}" Width="2*" />
+                            <DataGridTemplateColumn Header="" Width="58">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ui:Button ToolTip="Удалить событие" Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Appearance="Danger" Padding="8,4" Margin="0">
+                                            <ui:SymbolIcon Symbol="Delete24" Width="16" Height="16"/>
+                                        </ui:Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </ui:DataGrid>
+                </Grid>
+            </ui:Card>
+            <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" Margin="2,12,0,0" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" />
+        </Grid>
     </Grid>
-</Window>
+    </ui:FluentWindow>

@@ -1,12 +1,12 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using VeloTracker.Data;
 using VeloTracker.Models;
-using VeloTracker.Services;
 using VeloTracker.Views;
+using Wpf.Ui.Controls;
 
 namespace VeloTracker.ViewModels;
 
@@ -15,31 +15,34 @@ public partial class MainViewModel : ObservableObject
     private readonly EventRepository _repository;
     private readonly IServiceProvider _services;
 
-    public ObservableCollection<EventOption> EventOptions { get; } = new()
+    public ObservableCollection<EventCategoryOption> Categories { get; } = new()
     {
-        new("LubricantChanged", "Замена смазки цепи", "🛢️", "Maintenance"),
-        new("TireChanged", "Замена покрышки", "🚲", "Maintenance"),
-        new("ChainChanged", "Замена цепи", "⛓️", "Maintenance"),
-        new("BrakePadsChanged", "Замена тормозных колодок", "🛑", "Maintenance"),
-        new("TubeChanged", "Замена камеры", "⭕", "Maintenance"),
-        new("PurchasedBeacon", "Покупка маячка", "📡", "Part"),
-        new("RearDerailleurChanged", "Замена заднего переключателя", "⚙️", "Part"),
-        new("FreewheelChanged", "Замена трещотки", "🔩", "Part"),
-        new("CassetteChanged", "Замена кассеты", "⚙️", "Part"),
-        new("PedalsChanged", "Замена педалей", "🦶", "Part"),
-        new("RideDistance", "Проехано за день", "📏", "Ride")
+        new("Maintenance", "Обслуживание и расходники", SymbolRegular.WrenchScrewdriver24),
+        new("Part", "Покупка / установка детали", SymbolRegular.ShoppingBag24),
+        new("Ride", "Указать пройденное расстояние", SymbolRegular.VehicleBicycle24)
     };
 
+    private readonly List<EventOption> _allOptions = new()
+    {
+        new("LubricantChanged", "Замена смазки цепи", SymbolRegular.Drop24, "Maintenance"),
+        new("TireChanged", "Замена покрышки", SymbolRegular.VehicleBicycle24, "Maintenance"),
+        new("ChainChanged", "Замена цепи", SymbolRegular.Link24, "Maintenance"),
+        new("BrakePadsChanged", "Замена тормозных колодок", SymbolRegular.ShieldCheckmark24, "Maintenance"),
+        new("TubeChanged", "Замена камеры", SymbolRegular.Circle24, "Maintenance"),
+        new("PurchasedBeacon", "Покупка маячка", SymbolRegular.Location24, "Part"),
+        new("RearDerailleurChanged", "Задний переключатель", SymbolRegular.WrenchScrewdriver24, "Part"),
+        new("FreewheelChanged", "Трещотка", SymbolRegular.DriveTrain24, "Part"),
+        new("CassetteChanged", "Кассета", SymbolRegular.Settings24, "Part"),
+        new("PedalsChanged", "Педали", SymbolRegular.VehicleBicycle24, "Part"),
+        new("OtherPart", "Другая деталь", SymbolRegular.Toolbox24, "Part")
+    };
+
+    public ObservableCollection<EventOption> AvailableOptions { get; } = new();
     public ObservableCollection<BikeEvent> Events { get; } = new();
 
     [ObservableProperty] private double totalDistanceKm;
     [ObservableProperty] private int totalRideCount;
-
-    public string HistorySummary => $"Записей в списке: {Events.Count} · Поездок всего: {TotalRideCount} · Пробег всего: {TotalDistanceKm:N1} км";
-
-    partial void OnTotalDistanceKmChanged(double value) => OnPropertyChanged(nameof(HistorySummary));
-    partial void OnTotalRideCountChanged(int value) => OnPropertyChanged(nameof(HistorySummary));
-
+    [ObservableProperty] private EventCategoryOption? selectedCategory;
     [ObservableProperty] private EventOption? selectedOption;
     [ObservableProperty] private DateTime selectedDate = DateTime.Today;
     [ObservableProperty] private string notes = string.Empty;
@@ -49,38 +52,58 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string statusMessage = "Готово к работе";
     [ObservableProperty] private bool isBusy;
 
-    public bool IsRideEvent => SelectedOption?.Category == "Ride";
+    public bool IsRideEvent => SelectedCategory?.Key == "Ride";
+    public bool IsPartEvent => SelectedCategory?.Key == "Part";
+    public bool IsMaintenanceEvent => SelectedCategory?.Key == "Maintenance";
+    public bool ShowsSubtype => !IsRideEvent;
+    public string HistorySummary => $"Записей в списке: {Events.Count} · Поездок всего: {TotalRideCount} · Пробег всего: {TotalDistanceKm:N1} км";
+
+    partial void OnTotalDistanceKmChanged(double value) => OnPropertyChanged(nameof(HistorySummary));
+    partial void OnTotalRideCountChanged(int value) => OnPropertyChanged(nameof(HistorySummary));
 
     public MainViewModel(EventRepository repository, IServiceProvider services)
     {
         _repository = repository;
         _services = services;
-        SelectedOption = EventOptions[0];
+        SelectedCategory = Categories[0];
+        RefreshOptions();
     }
 
-    partial void OnSelectedOptionChanged(EventOption? value)
+    partial void OnSelectedCategoryChanged(EventCategoryOption? value)
     {
         OnPropertyChanged(nameof(IsRideEvent));
-        if (value?.Category == "Ride" && string.IsNullOrWhiteSpace(DistanceKmText)) DistanceKmText = "20";
+        OnPropertyChanged(nameof(IsPartEvent));
+        OnPropertyChanged(nameof(IsMaintenanceEvent));
+        OnPropertyChanged(nameof(ShowsSubtype));
+        RefreshOptions();
+    }
+
+    private void RefreshOptions()
+    {
+        AvailableOptions.Clear();
+        if (SelectedCategory is null) { SelectedOption = null; return; }
+        foreach (var option in _allOptions.Where(x => x.Category == SelectedCategory.Key)) AvailableOptions.Add(option);
+        SelectedOption = AvailableOptions.FirstOrDefault();
     }
 
     [RelayCommand]
     private async Task AddEventAsync()
     {
-        if (IsBusy || SelectedOption is null) return;
+        if (IsBusy || SelectedCategory is null || (!IsRideEvent && SelectedOption is null)) return;
         double? distance = null;
         decimal? cost = null;
-        if (SelectedOption.Category == "Ride")
+
+        if (IsRideEvent)
         {
             if (!double.TryParse(DistanceKmText, NumberStyles.Number, CultureInfo.CurrentCulture, out var parsed) ||
-                !double.IsFinite(parsed) || parsed < 0 || parsed > 1000)
+                !double.IsFinite(parsed) || parsed <= 0 || parsed > 1000)
             {
-                StatusMessage = "Укажи корректный пробег от 0 до 1000 км.";
+                StatusMessage = "Укажи корректный пробег больше 0 и не более 1000 км.";
                 return;
             }
             distance = parsed;
         }
-        if (!string.IsNullOrWhiteSpace(CostText))
+        else if (IsPartEvent && !string.IsNullOrWhiteSpace(CostText))
         {
             if (!decimal.TryParse(CostText, NumberStyles.Number, CultureInfo.CurrentCulture, out var parsedCost) || parsedCost < 0)
             {
@@ -90,34 +113,34 @@ public partial class MainViewModel : ObservableObject
             cost = parsedCost;
         }
 
+        var chosen = SelectedOption;
+        var title = IsRideEvent ? "Пройденное расстояние" : chosen!.Label;
+        var icon = IsRideEvent ? SymbolRegular.VehicleBicycle24 : chosen!.Icon;
         IsBusy = true;
         try
         {
             var item = new BikeEvent
             {
                 EventDate = SelectedDate.Date,
-                Category = SelectedOption.Category,
-                EventType = SelectedOption.Key,
-                Title = SelectedOption.Label,
-                ItemName = string.IsNullOrWhiteSpace(ItemName) ? null : ItemName.Trim(),
+                Category = SelectedCategory.Key,
+                EventType = IsRideEvent ? "RideDistance" : chosen!.Key,
+                Title = title,
+                ItemName = IsPartEvent && !string.IsNullOrWhiteSpace(ItemName) ? ItemName.Trim() : null,
                 DistanceKm = distance,
                 Cost = cost,
-                Notes = string.IsNullOrWhiteSpace(Notes) ? null : Notes.Trim(),
+                Notes = !IsRideEvent && !string.IsNullOrWhiteSpace(Notes) ? Notes.Trim() : null,
                 CreatedAtUtc = DateTime.UtcNow,
-                Icon = SelectedOption.Icon
+                Icon = icon
             };
             await _repository.AddAsync(item);
-            StatusMessage = $"Добавлено: {SelectedOption.Label}";
+            StatusMessage = IsRideEvent ? $"Добавлено: {distance:N1} км" : $"Добавлено: {title}";
             Notes = string.Empty;
             ItemName = string.Empty;
             CostText = string.Empty;
+            if (IsRideEvent) DistanceKmText = string.Empty;
             await LoadEventsAsync();
-            OnPropertyChanged(nameof(HistorySummary));
         }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Не удалось сохранить событие: {ex.Message}";
-        }
+        catch (Exception ex) { StatusMessage = $"Не удалось сохранить событие: {ex.Message}"; }
         finally { IsBusy = false; }
     }
 
@@ -125,12 +148,11 @@ public partial class MainViewModel : ObservableObject
     private async Task DeleteEventAsync(BikeEvent? item)
     {
         if (item is null) return;
-        if (MessageBox.Show($"Удалить событие «{item.Title}»?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+        if (System.Windows.MessageBox.Show($"Удалить событие «{item.Title}»?", "Подтверждение", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question) != System.Windows.MessageBoxResult.Yes) return;
         try
         {
             await _repository.DeleteAsync(item.Id);
             await LoadEventsAsync();
-            OnPropertyChanged(nameof(HistorySummary));
             StatusMessage = "Событие удалено";
         }
         catch (Exception ex) { StatusMessage = $"Ошибка удаления: {ex.Message}"; }
@@ -148,7 +170,8 @@ public partial class MainViewModel : ObservableObject
                 Events.Clear();
                 foreach (var item in items)
                 {
-                    item.Icon = EventOptions.FirstOrDefault(x => x.Key == item.EventType)?.Icon ?? "📌";
+                    item.Icon = _allOptions.FirstOrDefault(x => x.Key == item.EventType)?.Icon ??
+                                (item.Category == "Ride" ? SymbolRegular.VehicleBicycle24 : SymbolRegular.Wrench24);
                     Events.Add(item);
                 }
                 TotalRideCount = summary.RideCount;

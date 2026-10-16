@@ -3,10 +3,11 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VeloTracker.Models;
+using Wpf.Ui.Appearance;
 
 namespace VeloTracker.Services;
 
-/// <summary>Applies application-wide theme and background brushes at runtime.</summary>
+/// <summary>Applies the WPF-UI theme and application background brushes at runtime.</summary>
 public sealed class AppearanceService
 {
     public void Apply(AppSettings settings)
@@ -16,20 +17,31 @@ public sealed class AppearanceService
 
         var dark = settings.Theme == "Dark" ||
                    (settings.Theme == "System" && IsWindowsDarkMode());
+        ApplicationThemeManager.Apply(dark ? ApplicationTheme.Dark : ApplicationTheme.Light);
 
         var baseColor = ParseColor(dark ? "#151A18" : "#F4F6F5", Colors.White);
         SetBrush("WindowBackgroundBrush", new SolidColorBrush(baseColor));
-        SetBrush("SurfaceBrush", new SolidColorBrush(ParseColor(dark ? "#202824" : "#FFFFFF", Colors.White)));
         SetBrush("PrimaryTextBrush", new SolidColorBrush(ParseColor(dark ? "#F0F5F1" : "#17211D", Colors.Black)));
         SetBrush("SecondaryTextBrush", new SolidColorBrush(ParseColor(dark ? "#A1B0A7" : "#68756E", Colors.Gray)));
         SetBrush("AccentBrush", new SolidColorBrush(ParseColor(dark ? "#65B995" : "#2E7D5B", Colors.SeaGreen)));
-        SetBrush("AlternateRowBrush", new SolidColorBrush(ParseColor(dark ? "#252D29" : "#F8FAF8", Colors.WhiteSmoke)));
+
+        var panelColor = ParseColor(settings.OverlayColor, baseColor);
+        panelColor.A = (byte)Math.Round(Math.Clamp(settings.OverlayOpacity, 0, 100) * 255.0 / 100.0);
+        var surface = new SolidColorBrush(panelColor);
+        surface.Freeze();
+        SetBrush("SurfaceBrush", surface);
+
+        var alternateColor = dark ? ParseColor("#202824", Colors.DarkSlateGray) : ParseColor("#F8FAF8", Colors.WhiteSmoke);
+        alternateColor.A = (byte)Math.Round(Math.Clamp(settings.OverlayOpacity, 0, 100) * 0.88 * 255.0 / 100.0);
+        var alternate = new SolidColorBrush(alternateColor);
+        alternate.Freeze();
+        SetBrush("AlternateRowBrush", alternate);
+        SetBrush("WindowOverlayBrush", Brushes.Transparent);
 
         var imagePath = settings.BackgroundImagePath;
         if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
         {
             SetBrush("WindowImageBrush", new SolidColorBrush(baseColor));
-            SetBrush("WindowOverlayBrush", Brushes.Transparent);
             return;
         }
 
@@ -49,9 +61,7 @@ public sealed class AppearanceService
                 imageBrush.Stretch = Stretch.None;
                 imageBrush.TileMode = TileMode.Tile;
                 imageBrush.ViewportUnits = BrushMappingMode.Absolute;
-                imageBrush.Viewport = new Rect(0, 0,
-                    Math.Max(1, bitmap.PixelWidth * scale),
-                    Math.Max(1, bitmap.PixelHeight * scale));
+                imageBrush.Viewport = new Rect(0, 0, Math.Max(1, bitmap.PixelWidth * scale), Math.Max(1, bitmap.PixelHeight * scale));
             }
             else
             {
@@ -60,21 +70,14 @@ public sealed class AppearanceService
             }
             imageBrush.Freeze();
             SetBrush("WindowImageBrush", imageBrush);
-
-            var color = ParseColor(settings.OverlayColor, baseColor);
-            color.A = (byte)Math.Round(Math.Clamp(settings.OverlayOpacity, 0, 100) * 255.0 / 100.0);
-            var overlay = new SolidColorBrush(color);
-            overlay.Freeze();
-            SetBrush("WindowOverlayBrush", overlay);
         }
         catch (Exception)
         {
             SetBrush("WindowImageBrush", new SolidColorBrush(baseColor));
-            SetBrush("WindowOverlayBrush", Brushes.Transparent);
         }
     }
 
-    private void SetBrush(string key, Brush brush)
+    private static void SetBrush(string key, Brush brush)
     {
         if (Application.Current is { } app) app.Resources[key] = brush;
     }
@@ -89,8 +92,7 @@ public sealed class AppearanceService
     {
         try
         {
-            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
-                @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
             return key?.GetValue("AppsUseLightTheme") is int value && value == 0;
         }
         catch { return false; }
