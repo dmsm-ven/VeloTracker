@@ -1,13 +1,11 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
-using System.Text.Json;
 using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using VeloTracker.Data;
 using VeloTracker.Models;
+using VeloTracker.Services;
 using VeloTracker.Views;
 
 namespace VeloTracker.ViewModels;
@@ -33,6 +31,14 @@ public partial class MainViewModel : ObservableObject
     };
 
     public ObservableCollection<BikeEvent> Events { get; } = new();
+
+    [ObservableProperty] private double totalDistanceKm;
+    [ObservableProperty] private int totalRideCount;
+
+    public string HistorySummary => $"Записей в списке: {Events.Count} · Поездок всего: {TotalRideCount} · Пробег всего: {TotalDistanceKm:N1} км";
+
+    partial void OnTotalDistanceKmChanged(double value) => OnPropertyChanged(nameof(HistorySummary));
+    partial void OnTotalRideCountChanged(int value) => OnPropertyChanged(nameof(HistorySummary));
 
     [ObservableProperty] private EventOption? selectedOption;
     [ObservableProperty] private DateTime selectedDate = DateTime.Today;
@@ -106,6 +112,7 @@ public partial class MainViewModel : ObservableObject
             ItemName = string.Empty;
             CostText = string.Empty;
             await LoadEventsAsync();
+            OnPropertyChanged(nameof(HistorySummary));
         }
         catch (Exception ex)
         {
@@ -123,6 +130,7 @@ public partial class MainViewModel : ObservableObject
         {
             await _repository.DeleteAsync(item.Id);
             await LoadEventsAsync();
+            OnPropertyChanged(nameof(HistorySummary));
             StatusMessage = "Событие удалено";
         }
         catch (Exception ex) { StatusMessage = $"Ошибка удаления: {ex.Message}"; }
@@ -134,6 +142,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var items = await _repository.GetRecentAsync();
+            var summary = await _repository.GetRideSummaryAsync();
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Events.Clear();
@@ -142,23 +151,12 @@ public partial class MainViewModel : ObservableObject
                     item.Icon = EventOptions.FirstOrDefault(x => x.Key == item.EventType)?.Icon ?? "📌";
                     Events.Add(item);
                 }
+                TotalRideCount = summary.RideCount;
+                TotalDistanceKm = summary.TotalDistanceKm;
+                OnPropertyChanged(nameof(HistorySummary));
             });
         }
         catch (Exception ex) { StatusMessage = $"Ошибка чтения истории: {ex.Message}"; }
-    }
-
-    [RelayCommand]
-    private async Task ExportJsonAsync()
-    {
-        try
-        {
-            var dialog = new SaveFileDialog { Title = "Экспорт журнала VeloTracker", Filter = "JSON (*.json)|*.json", FileName = $"velotracker-{DateTime.Now:yyyy-MM-dd}.json" };
-            if (dialog.ShowDialog() != true) return;
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            await File.WriteAllTextAsync(dialog.FileName, JsonSerializer.Serialize(Events, options));
-            StatusMessage = $"Экспортировано событий: {Events.Count}";
-        }
-        catch (Exception ex) { StatusMessage = $"Ошибка экспорта: {ex.Message}"; }
     }
 
     [RelayCommand]

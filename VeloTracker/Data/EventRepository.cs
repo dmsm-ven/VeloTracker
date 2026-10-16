@@ -55,6 +55,22 @@ public sealed class EventRepository(AppPaths paths)
         });
     }
 
+    private sealed class RideSummaryRow
+    {
+        public int RideCount { get; set; }
+        public double TotalDistanceKm { get; set; }
+    }
+
+    public async Task<(int RideCount, double TotalDistanceKm)> GetRideSummaryAsync()
+    {
+        await using var connection = CreateConnection();
+        var result = await connection.QuerySingleAsync<RideSummaryRow>("""
+            SELECT COUNT(*) AS RideCount, COALESCE(SUM(DistanceKm), 0) AS TotalDistanceKm
+            FROM BikeEvents WHERE Category = 'Ride' AND DistanceKm IS NOT NULL;
+            """);
+        return (result.RideCount, result.TotalDistanceKm);
+    }
+
     public async Task DeleteAsync(long id)
     {
         await using var connection = CreateConnection();

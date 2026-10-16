@@ -36,6 +36,7 @@ public partial class App : Application
                 {
                     services.AddSingleton(paths);
                     services.AddSingleton<SettingsService>();
+                    services.AddSingleton<AppearanceService>();
                     services.AddSingleton<DatabaseInitializer>();
                     services.AddSingleton<EventRepository>();
                     services.AddSingleton<MainViewModel>();
@@ -46,6 +47,8 @@ public partial class App : Application
 
             await _host.StartAsync();
             await _host.Services.GetRequiredService<DatabaseInitializer>().InitializeAsync();
+            var settings = await _host.Services.GetRequiredService<SettingsService>().LoadAsync();
+            _host.Services.GetRequiredService<AppearanceService>().Apply(settings);
             var window = _host.Services.GetRequiredService<MainWindow>();
             MainWindow = window;
             window.Show();
