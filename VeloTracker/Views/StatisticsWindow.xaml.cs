@@ -1,4 +1,3 @@
-using System.Windows;
 using VeloTracker.ViewModels;
 using Wpf.Ui.Controls;
 
@@ -10,8 +9,5 @@ public partial class StatisticsWindow : FluentWindow
     {
         InitializeComponent();
         DataContext = viewModel;
-        Loaded += async (_, _) => await viewModel.LoadCommand.ExecuteAsync(null);
     }
-
-    private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
 }

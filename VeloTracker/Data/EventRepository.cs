@@ -41,6 +41,33 @@ public sealed class EventRepository(AppPaths paths)
         }).ToArray();
     }
 
+    private sealed class RideEntryRow
+    {
+        public string EventDate { get; set; } = "";
+        public double DistanceKm { get; set; }
+    }
+
+    public async Task<IReadOnlyList<RideEntry>> GetRideEntriesAsync()
+    {
+        await using var connection = CreateConnection();
+        var rows = await connection.QueryAsync<RideEntryRow>("""
+            SELECT EventDate, DistanceKm
+            FROM BikeEvents
+            WHERE Category = 'Ride' AND DistanceKm IS NOT NULL
+            ORDER BY EventDate ASC;
+            """);
+
+        return rows.Select(row => new RideEntry(
+            DateTime.TryParse(row.EventDate, null, System.Globalization.DateTimeStyles.RoundtripKind, out var date)
+                ? date.Date
+                : DateTime.MinValue,
+            row.DistanceKm))
+            .Where(ride => ride.Date != DateTime.MinValue)
+            .ToArray();
+    }
+
+    public sealed record RideEntry(DateTime Date, double DistanceKm);
+
     public async Task AddAsync(BikeEvent item)
     {
         const string sql = """

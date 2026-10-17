@@ -40,6 +40,7 @@ public partial class App : Application
                     services.AddSingleton<AppearanceService>();
                     services.AddSingleton<DatabaseInitializer>();
                     services.AddSingleton<EventRepository>();
+                    services.AddSingleton<StatisticsService>();
                     services.AddSingleton<MainViewModel>();
                     services.AddSingleton<MainWindow>();
                     services.AddTransient<SettingsViewModel>();
