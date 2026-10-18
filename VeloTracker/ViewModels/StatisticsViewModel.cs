@@ -1,7 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
 using VeloTracker.Services;
 
 namespace VeloTracker.ViewModels;
@@ -21,9 +19,9 @@ public partial class StatisticsViewModel : ObservableObject
     [ObservableProperty] private string statusMessage = "Загрузка статистики…";
 
     [ObservableProperty] private string selectedPeriodKey = "Month";
-    [ObservableProperty] private ISeries[] series = [];
-    [ObservableProperty] private Axis[] xAxes = [new Axis()];
-    [ObservableProperty] private Axis[] yAxes = [new Axis { MinLimit = 0 }];
+    [ObservableProperty] private double[] chartValues = [];
+    [ObservableProperty] private string[] chartLabels = [];
+    [ObservableProperty] private string[] chartToolTips = [];
     [ObservableProperty] private double chartWidth = 900;
     [ObservableProperty] private int daysWithRides;
     [ObservableProperty] private double periodDistanceKm;
@@ -98,34 +96,17 @@ public partial class StatisticsViewModel : ObservableObject
                 _ => 23d
             };
 
-            Series =
-            [
-                new ColumnSeries<double>
-                {
-                    Name = "Пробег, км",
-                    Values = result.Points.Select(point => point.DistanceKm).ToArray(),
-                    MaxBarWidth = Math.Max(5d, columnWidth * 0.72d)
-                }
-            ];
-
-            XAxes =
-            [
-                new Axis
-                {
-                    Labels = result.Points.Select(point => SelectedPeriodKey switch
-                    {
-                        "Week" => point.Date.ToString("dd.MM"),
-                        "Month" => point.Date.ToString("dd"),
-                        "Year" => point.Date.ToString("dd.MM"),
-                        _ => point.Date.ToString("dd.MM.yy")
-                    }).ToArray(),
-                    LabelsRotation = -55,
-                    TextSize = 11,
-                    MinStep = 1,
-                    ForceStepToMin = true
-                }
-            ];
-            YAxes = [new Axis { Name = "Километры", MinLimit = 0, TextSize = 12 }];
+            ChartValues = result.Points.Select(point => point.DistanceKm).ToArray();
+            ChartLabels = result.Points.Select(point => SelectedPeriodKey switch
+            {
+                "Week" => point.Date.ToString("dd.MM"),
+                "Month" => point.Date.ToString("dd"),
+                "Year" => point.Date.ToString("dd.MM"),
+                _ => point.Date.ToString("dd.MM.yy")
+            }).ToArray();
+            ChartToolTips = result.Points
+                .Select(point => $"{point.Date:dd.MM.yyyy}: {point.DistanceKm:N1} км")
+                .ToArray();
             ChartWidth = Math.Max(760d, 78d + result.Points.Count * columnWidth);
 
             DaysWithRides = result.DaysWithRides;

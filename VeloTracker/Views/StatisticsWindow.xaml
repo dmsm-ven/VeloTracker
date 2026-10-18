@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        xmlns:controls="clr-namespace:VeloTracker.Controls"
         Title="Статистика VeloTracker" Width="1060" Height="900" MinHeight="680" MinWidth="780"
         WindowStartupLocation="CenterOwner" ExtendsContentIntoTitleBar="True" ResizeMode="CanResize">
     <Grid>
@@ -46,11 +46,15 @@
             <ui:Card Grid.Row="2" Padding="10" Background="{DynamicResource SurfaceBrush}" Margin="0,0,0,12">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
                               CanContentScroll="False" PanningMode="HorizontalOnly">
-                    <lvc:CartesianChart Series="{Binding Series}"
-                                        XAxes="{Binding XAxes}"
-                                        YAxes="{Binding YAxes}"
-                                        Width="{Binding ChartWidth}"
-                                        Height="320" />
+                    <controls:BarChart Values="{Binding ChartValues}"
+                                       Labels="{Binding ChartLabels}"
+                                       ItemToolTips="{Binding ChartToolTips}"
+                                       YAxisTitle="Километры"
+                                       BarBrush="{DynamicResource AccentBrush}"
+                                       TextBrush="{DynamicResource SecondaryTextBrush}"
+                                       GridBrush="{DynamicResource DataGridHeaderBorderBrush}"
+                                       Width="{Binding ChartWidth}"
+                                       Height="320" />
                 </ScrollViewer>
             </ui:Card>
 
