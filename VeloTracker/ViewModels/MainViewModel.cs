@@ -1,8 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using VeloTracker.Data;
 using VeloTracker.Models;
 using VeloTracker.Services;
@@ -147,7 +147,7 @@ public partial class MainViewModel : ObservableObject
 
         if (IsRideEvent)
         {
-            if (!double.TryParse(DistanceKmText, NumberStyles.Number, CultureInfo.CurrentCulture, out var parsed) ||
+            if (!double.TryParse(DistanceKmText.Replace(".", ","), NumberStyles.Number, CultureInfo.CurrentCulture, out var parsed) ||
                 !double.IsFinite(parsed) || parsed <= 0 || parsed > 1000)
             {
                 StatusMessage = "Укажи корректный пробег больше 0 и не более 1000 км.";
