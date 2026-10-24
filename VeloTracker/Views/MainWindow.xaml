@@ -8,243 +8,205 @@
     <ui:FluentWindow.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <Style x:Key="MenuTileBaseStyle" TargetType="Button">
-            <Setter Property="Height" Value="120"/><Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="12"/><Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+            <Setter Property="Height" Value="62"/><Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="10,6"/><Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrush}"/><Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/><Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="19"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="FontSize" Value="16"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Stretch"/><Setter Property="Template"><Setter.Value>
-                <ControlTemplate TargetType="Button"><Border x:Name="TileBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="14" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/></Border>
+                <ControlTemplate TargetType="Button"><Border x:Name="TileBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/></Border>
                 <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="TileBorder" Property="BorderBrush" Value="{DynamicResource ComboBoxIconBrush}"/><Setter TargetName="TileBorder" Property="Background" Value="{DynamicResource ComboBoxHoverBrush}"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="TileBorder" Property="Opacity" Value="0.85"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="TileBorder" Property="Opacity" Value="0.5"/></Trigger></ControlTemplate.Triggers>
             </ControlTemplate></Setter.Value></Setter>
         </Style>
         <Style x:Key="RideTileStyle" TargetType="Button" BasedOn="{StaticResource MenuTileBaseStyle}"><Style.Triggers><DataTrigger Binding="{Binding SelectedCategory.Key}" Value="Ride"><Setter Property="Background" Value="{DynamicResource AccentBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/><Setter Property="BorderThickness" Value="2"/><Setter Property="Foreground" Value="#FFFFFFFF"/></DataTrigger></Style.Triggers></Style>
         <Style x:Key="MaintenanceTileStyle" TargetType="Button" BasedOn="{StaticResource MenuTileBaseStyle}"><Style.Triggers><DataTrigger Binding="{Binding SelectedCategory.Key}" Value="Maintenance"><Setter Property="Background" Value="{DynamicResource AccentBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/><Setter Property="BorderThickness" Value="2"/><Setter Property="Foreground" Value="#FFFFFFFF"/></DataTrigger></Style.Triggers></Style>
         <Style x:Key="PartTileStyle" TargetType="Button" BasedOn="{StaticResource MenuTileBaseStyle}"><Style.Triggers><DataTrigger Binding="{Binding SelectedCategory.Key}" Value="Part"><Setter Property="Background" Value="{DynamicResource AccentBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/><Setter Property="BorderThickness" Value="2"/><Setter Property="Foreground" Value="#FFFFFFFF"/></DataTrigger></Style.Triggers></Style>
+        <Style x:Key="HistoryHeaderStyle" TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="{DynamicResource DataGridHeaderBackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DataGridHeaderTextBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource DataGridHeaderBorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                <Setter Property="Padding" Value="10,4"/>
+                                <Setter Property="MinHeight" Value="32"/><Setter Property="FontSize" Value="12"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="DataGridColumnHeader">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    TextElement.Foreground="{TemplateBinding Foreground}"
+                                                    TextElement.FontWeight="{TemplateBinding FontWeight}">
+                                                <ContentPresenter ContentSource="Content"
+                                                                  RecognizesAccessKey="True"
+                                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                  Margin="{TemplateBinding Padding}"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+        <ContextMenu x:Key="HistoryMenu" x:Shared="False">
+            <MenuItem Header="Удалить запись"
+                      Command="{Binding PlacementTarget.DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="Delete24"/></MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
     </ui:FluentWindow.Resources>
     <Grid>
-        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-        <Grid Grid.RowSpan="5" Panel.ZIndex="-1" IsHitTestVisible="False" Visibility="{Binding Background.HasImage, Converter={StaticResource BoolToVis}}">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <Grid Grid.RowSpan="3" Panel.ZIndex="-1" IsHitTestVisible="False" Visibility="{Binding Background.HasImage, Converter={StaticResource BoolToVis}}">
             <Rectangle Fill="{Binding Background.OverlayBrush}"/><Rectangle Fill="{Binding Background.ImageBrush}" Opacity="{Binding Background.ImageOpacity}"/>
         </Grid>
         <ui:TitleBar Grid.Row="0" Title="VeloTracker"/>
 
+        <!-- Content area: top block (toolbar, tabs, add panel) 4/9, history table 5/9. -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions><RowDefinition Height="4*"/><RowDefinition Height="5*"/></Grid.RowDefinitions>
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+
         <!-- Tool panel -->
-        <Grid Grid.Row="1" Margin="26,14,26,18">
+        <Grid Margin="26,4,26,8">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-            <StackPanel VerticalAlignment="Center"><TextBlock Text="VeloTracker" FontSize="26" FontWeight="Bold"/><TextBlock Text="Журнал поездок, обслуживания и деталей велосипеда" Margin="0,3,0,0" Foreground="{DynamicResource SecondaryTextBrush}"/></StackPanel>
+            <StackPanel VerticalAlignment="Center"><TextBlock Text="VeloTracker" FontSize="20" FontWeight="Bold"/><TextBlock Text="Журнал поездок, обслуживания и деталей велосипеда" FontSize="12" Margin="0,1,0,0" Foreground="{DynamicResource SecondaryTextBrush}"/></StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <ui:Button Command="{Binding OpenStatisticsCommand}" Appearance="Secondary" Margin="0,0,10,0">
+                <ui:Button Command="{Binding OpenStatisticsCommand}" Appearance="Secondary" Margin="0,0,10,0" Padding="10,5">
                     <StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="DataHistogram24" Width="18" Height="18" Margin="0,0,7,0"/><TextBlock Text="Статистика" VerticalAlignment="Center"/></StackPanel>
                 </ui:Button>
-                <ui:Button Command="{Binding OpenSettingsCommand}" Appearance="Secondary">
+                <ui:Button Command="{Binding OpenSettingsCommand}" Appearance="Secondary" Padding="10,5">
                     <StackPanel Orientation="Horizontal"><ui:SymbolIcon Symbol="Settings24" Width="18" Height="18" Margin="0,0,7,0"/><TextBlock Text="Настройки" VerticalAlignment="Center"/></StackPanel>
                 </ui:Button>
             </StackPanel>
         </Grid>
 
-        <!-- Main menu: three large tiles, 120 px tall, 20 px gap. -->
-        <Grid Grid.Row="2" Margin="26,0,26,18">
+        <!-- Main menu: three compact tiles. -->
+        <Grid Margin="26,0,26,10">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
             <Button Grid.Column="0" Style="{StaticResource RideTileStyle}" Command="{Binding SelectViewCommand}" CommandParameter="Ride" Margin="0,0,10,0">
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="VehicleBicycle24" Width="38" Height="38" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/><TextBlock Text="Километраж" FontSize="19" FontWeight="SemiBold" Margin="0,8,0,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="VehicleBicycle24" Width="26" Height="26" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/><TextBlock Text="Километраж" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel>
             </Button>
             <Button Grid.Column="1" Style="{StaticResource MaintenanceTileStyle}" Command="{Binding SelectViewCommand}" CommandParameter="Maintenance" Margin="10,0">
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="WrenchScrewdriver24" Width="38" Height="38" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/><TextBlock Text="Обслуживание" FontSize="19" FontWeight="SemiBold" Margin="0,8,0,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="WrenchScrewdriver24" Width="26" Height="26" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/><TextBlock Text="Обслуживание" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel>
             </Button>
             <Button Grid.Column="2" Style="{StaticResource PartTileStyle}" Command="{Binding SelectViewCommand}" CommandParameter="Part" Margin="10,0,0,0">
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="ShoppingBag24" Width="38" Height="38" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/><TextBlock Text="Детали" FontSize="19" FontWeight="SemiBold" Margin="0,8,0,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="ShoppingBag24" Width="26" Height="26" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/><TextBlock Text="Детали" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel>
             </Button>
         </Grid>
 
-        <!-- Active view and history occupy the remaining space. -->
-        <Grid Grid.Row="3" Margin="26,0,26,8">
-            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-            <ui:Card Grid.Row="0" Background="{DynamicResource SurfaceBrush}" Padding="20" Margin="0,0,0,16">
+        <!-- Add-event panel. -->
+        <Grid Margin="26,0,26,8">
+            <ui:Card Background="{DynamicResource SurfaceBrush}" Padding="14,10">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="{Binding ActiveViewTitle}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+                    <TextBlock Grid.Row="0" Text="{Binding ActiveViewTitle}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8"/>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="1.15*"/><ColumnDefinition Width="1*"/><ColumnDefinition Width="1.3*"/></Grid.ColumnDefinitions>
                         <!-- First field depends on the active tile. -->
                         <StackPanel Grid.Column="0" Margin="0,0,18,0">
                             <StackPanel Visibility="{Binding IsRideEvent, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Пройдено, км" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,6"/>
-                                <ui:TextBox Text="{Binding DistanceKmText, UpdateSourceTrigger=PropertyChanged}" Height="42" ToolTip="Длина поездки в километрах"/>
-                                <TextBlock Text="Среднее время, мин (необязательно)" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,12,0,6" TextWrapping="Wrap"/>
-                                <ui:TextBox Text="{Binding AverageTimeMinutesText, UpdateSourceTrigger=PropertyChanged}" Height="42" ToolTip="Среднее время поездки в минутах; оставь пустым, если не хочешь указывать"/>
+                                <TextBlock Text="Пройдено, км" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,3"/>
+                                <ui:TextBox Text="{Binding DistanceKmText, UpdateSourceTrigger=PropertyChanged}" Height="34" ToolTip="Длина поездки в километрах"/>
+                                <TextBlock Text="Среднее время, мин (необязательно)" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,7,0,3" TextWrapping="Wrap"/>
+                                <ui:TextBox Text="{Binding AverageTimeMinutesText, UpdateSourceTrigger=PropertyChanged}" Height="34" ToolTip="Среднее время поездки в минутах; оставь пустым, если не хочешь указывать"/>
                             </StackPanel>
                             <StackPanel Visibility="{Binding ShowsSubtype, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Тип события" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,6"/>
-                                <ComboBox ItemsSource="{Binding AvailableOptions}" SelectedItem="{Binding SelectedOption}" Height="42">
+                                <TextBlock Text="Тип события" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,3"/>
+                                <ComboBox ItemsSource="{Binding AvailableOptions}" SelectedItem="{Binding SelectedOption}" Height="34">
                                     <ComboBox.ItemTemplate><DataTemplate><StackPanel Orientation="Horizontal"><ui:SymbolIcon x:Name="OptionIcon" Symbol="{Binding Icon}" Width="19" Height="19" Margin="0,0,9,0" Foreground="{DynamicResource ComboBoxIconBrush}"/><TextBlock Text="{Binding Label}" VerticalAlignment="Center"/></StackPanel><DataTemplate.Triggers><DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ComboBoxItem}}" Value="True"><Setter TargetName="OptionIcon" Property="Foreground" Value="{DynamicResource ComboBoxHighlightTextBrush}"/></DataTrigger></DataTemplate.Triggers></DataTemplate></ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="0,0,18,0">
-                            <TextBlock Text="Дата события" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,6"/>
-                            <DatePicker SelectedDate="{Binding SelectedDate}" Height="42"/>
+                            <TextBlock Text="Дата события" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,3"/>
+                            <DatePicker SelectedDate="{Binding SelectedDate}" Height="34"/>
                             <TextBlock Text="Указывай дату фактической поездки или работы." FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,6,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <StackPanel Visibility="{Binding IsPartEvent, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Название / модель / бренд" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,6"/>
-                                <ui:TextBox Text="{Binding ItemName, UpdateSourceTrigger=PropertyChanged}" Height="40" ToolTip="Модель, бренд или артикул"/>
-                                <TextBlock Text="Стоимость, необязательно" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,10,0,6"/>
-                                <ui:TextBox Text="{Binding CostText, UpdateSourceTrigger=PropertyChanged}" Height="40" ToolTip="Стоимость детали"/>
+                                <TextBlock Text="Название / модель / бренд" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,3"/>
+                                <ui:TextBox Text="{Binding ItemName, UpdateSourceTrigger=PropertyChanged}" Height="34" ToolTip="Модель, бренд или артикул"/>
+                                <TextBlock Text="Стоимость, необязательно" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,7,0,3"/>
+                                <ui:TextBox Text="{Binding CostText, UpdateSourceTrigger=PropertyChanged}" Height="34" ToolTip="Стоимость детали"/>
                             </StackPanel>
                             <StackPanel Visibility="{Binding IsMaintenanceEvent, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Примечание" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,6"/>
-                                <ui:TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Height="88"/>
+                                <TextBlock Text="Примечание" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,3"/>
+                                <ui:TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Height="74"/>
                             </StackPanel>
                             <TextBlock Visibility="{Binding IsRideEvent, Converter={StaticResource BoolToVis}}" Text="Записывай каждую поездку — общий километраж и количество поездок пересчитаются автоматически." TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center" Margin="0,8,0,0"/>
                         </StackPanel>
                     </Grid>
-                    <Grid Grid.Row="2" Margin="0,18,0,0">
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
                         <TextBlock Text="Для выбранного типа сохраняются только относящиеся к нему поля." Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" Margin="0,0,220,0"/>
-                        <ui:Button Command="{Binding AddEventCommand}" Appearance="Primary" HorizontalAlignment="Right" MinWidth="205" IsDefault="True"><StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="Add24" Width="18" Height="18" Margin="0,0,7,0"/><TextBlock Text="Добавить в журнал" VerticalAlignment="Center" FontSize="14"/></StackPanel></ui:Button>
+                        <ui:Button Command="{Binding AddEventCommand}" Appearance="Primary" HorizontalAlignment="Right" MinWidth="205" Padding="10,5" IsDefault="True"><StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><ui:SymbolIcon Symbol="Add24" Width="18" Height="18" Margin="0,0,7,0"/><TextBlock Text="Добавить в журнал" VerticalAlignment="Center" FontSize="14"/></StackPanel></ui:Button>
                     </Grid>
                 </Grid>
             </ui:Card>
+        </Grid>
 
-            <ui:Card Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="18">
+            </StackPanel>
+            </ScrollViewer>
+
+        <!-- History table. -->
+        <Grid Grid.Row="1" Margin="26,0,26,8" VerticalAlignment="Stretch">
+            <ui:Card Background="{DynamicResource SurfaceBrush}" Padding="12,10" VerticalAlignment="Top" VerticalContentAlignment="Stretch">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                    <DockPanel Margin="0,0,0,12" LastChildFill="True">
-                        <TextBlock Text="История событий" FontSize="18" FontWeight="SemiBold"/>
+                    <DockPanel Margin="0,0,0,8" LastChildFill="True">
+                        <TextBlock Text="История событий" FontSize="16" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding HistorySummary}" DockPanel.Dock="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap" Margin="20,0,0,0"/>
                     </DockPanel>
                     <!-- Each section has its own collection and purpose-built columns. -->
                     <ui:DataGrid Grid.Row="1" ItemsSource="{Binding RideEvents}" Visibility="{Binding IsRideEvent, Converter={StaticResource BoolToVis}}"
                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                 BorderThickness="0" RowHeight="44" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderThickness="0" RowHeight="30" FontSize="12.5" ColumnHeaderStyle="{StaticResource HistoryHeaderStyle}" ContextMenu="{StaticResource HistoryMenu}" PreviewMouseRightButtonDown="HistoryGrid_PreviewMouseRightButtonDown" ContextMenuOpening="HistoryGrid_ContextMenuOpening" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 HorizontalScrollBarVisibility="Hidden"
                                  RowBackground="{DynamicResource SurfaceBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" SelectionMode="Single">
-                        <DataGrid.ColumnHeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="{DynamicResource DataGridHeaderBackgroundBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource DataGridHeaderTextBrush}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource DataGridHeaderBorderBrush}"/>
-                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                                <Setter Property="Padding" Value="12,9"/>
-                                <Setter Property="MinHeight" Value="48"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="DataGridColumnHeader">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    TextElement.Foreground="{TemplateBinding Foreground}"
-                                                    TextElement.FontWeight="{TemplateBinding FontWeight}">
-                                                <ContentPresenter ContentSource="Content"
-                                                                  RecognizesAccessKey="True"
-                                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                                  Margin="{TemplateBinding Padding}"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дата поездки" Binding="{Binding EventDate, StringFormat={}{0:dd.MM.yyyy}}" Width="1.1*"/>
+                            <DataGridTextColumn Header="День недели" Binding="{Binding DayOfWeekText}" Width="1.1*"/>
+                            <DataGridTextColumn Header="Дней назад" Binding="{Binding DaysAgoText}" Width="1.1*"/>
                             <DataGridTextColumn Header="Пробег, км" Binding="{Binding DistanceKm, StringFormat={}{0:N1}}" Width="1.1*"/>
                             <DataGridTextColumn Header="Среднее время, мин" Binding="{Binding AverageTimeMinutes, TargetNullValue=—}" Width="1.4*"/>
-                            <DataGridTemplateColumn Header="" Width="58"><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button ToolTip="Удалить поездку" Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Appearance="Danger" Padding="8,4" Margin="0"><ui:SymbolIcon Symbol="Delete24" Width="16" Height="16"/></ui:Button></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </ui:DataGrid>
                     <ui:DataGrid Grid.Row="1" ItemsSource="{Binding MaintenanceEvents}" Visibility="{Binding IsMaintenanceEvent, Converter={StaticResource BoolToVis}}"
                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                 BorderThickness="0" RowHeight="44" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderThickness="0" RowHeight="30" FontSize="12.5" ColumnHeaderStyle="{StaticResource HistoryHeaderStyle}" ContextMenu="{StaticResource HistoryMenu}" PreviewMouseRightButtonDown="HistoryGrid_PreviewMouseRightButtonDown" ContextMenuOpening="HistoryGrid_ContextMenuOpening" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
                                  RowBackground="{DynamicResource SurfaceBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" SelectionMode="Single">
-                        <DataGrid.ColumnHeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="{DynamicResource DataGridHeaderBackgroundBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource DataGridHeaderTextBrush}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource DataGridHeaderBorderBrush}"/>
-                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                                <Setter Property="Padding" Value="12,9"/>
-                                <Setter Property="MinHeight" Value="48"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="DataGridColumnHeader">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    TextElement.Foreground="{TemplateBinding Foreground}"
-                                                    TextElement.FontWeight="{TemplateBinding FontWeight}">
-                                                <ContentPresenter ContentSource="Content"
-                                                                  RecognizesAccessKey="True"
-                                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                                  Margin="{TemplateBinding Padding}"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дата" Binding="{Binding EventDate, StringFormat={}{0:dd.MM.yyyy}}" Width="1.1*"/>
+                            <DataGridTextColumn Header="День недели" Binding="{Binding DayOfWeekText}" Width="1.1*"/>
+                            <DataGridTextColumn Header="Дней назад" Binding="{Binding DaysAgoText}" Width="1.1*"/>
                             <DataGridTextColumn Header="Выполненное обслуживание" Binding="{Binding Title}" Width="2.4*"/>
                             <DataGridTextColumn Header="Примечание" Binding="{Binding Notes, TargetNullValue=—}" Width="2*"/>
-                            <DataGridTemplateColumn Header="" Width="58"><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button ToolTip="Удалить событие" Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Appearance="Danger" Padding="8,4" Margin="0"><ui:SymbolIcon Symbol="Delete24" Width="16" Height="16"/></ui:Button></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </ui:DataGrid>
                     <ui:DataGrid Grid.Row="1" ItemsSource="{Binding PartEvents}" Visibility="{Binding IsPartEvent, Converter={StaticResource BoolToVis}}"
                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                 BorderThickness="0" RowHeight="44" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderThickness="0" RowHeight="30" FontSize="12.5" ColumnHeaderStyle="{StaticResource HistoryHeaderStyle}" ContextMenu="{StaticResource HistoryMenu}" PreviewMouseRightButtonDown="HistoryGrid_PreviewMouseRightButtonDown" ContextMenuOpening="HistoryGrid_ContextMenuOpening" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}"
                                  RowBackground="{DynamicResource SurfaceBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" SelectionMode="Single">
-                        <DataGrid.ColumnHeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="{DynamicResource DataGridHeaderBackgroundBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource DataGridHeaderTextBrush}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource DataGridHeaderBorderBrush}"/>
-                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                                <Setter Property="Padding" Value="12,9"/>
-                                <Setter Property="MinHeight" Value="48"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="DataGridColumnHeader">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    TextElement.Foreground="{TemplateBinding Foreground}"
-                                                    TextElement.FontWeight="{TemplateBinding FontWeight}">
-                                                <ContentPresenter ContentSource="Content"
-                                                                  RecognizesAccessKey="True"
-                                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                                  Margin="{TemplateBinding Padding}"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дата" Binding="{Binding EventDate, StringFormat={}{0:dd.MM.yyyy}}" Width="1.1*"/>
+                            <DataGridTextColumn Header="День недели" Binding="{Binding DayOfWeekText}" Width="1.1*"/>
+                            <DataGridTextColumn Header="Дней назад" Binding="{Binding DaysAgoText}" Width="1.1*"/>
                             <DataGridTextColumn Header="Деталь / событие" Binding="{Binding Title}" Width="1.8*"/>
                             <DataGridTextColumn Header="Модель / бренд" Binding="{Binding ItemName, TargetNullValue=—}" Width="1.8*"/>
                             <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost, StringFormat={}{0:N2}, TargetNullValue=—}" Width="1.2*"/>
-                            <DataGridTemplateColumn Header="" Width="58"><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button ToolTip="Удалить событие" Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Appearance="Danger" Padding="8,4" Margin="0"><ui:SymbolIcon Symbol="Delete24" Width="16" Height="16"/></ui:Button></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </ui:DataGrid>
                 </Grid>
             </ui:Card>
         </Grid>
 
+        </Grid>
+
         <!-- Status bar -->
-        <Border Grid.Row="4" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ComboBoxBorderBrush}" Background="{DynamicResource WindowBackgroundBrush}" Padding="26,9">
+        <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ComboBoxBorderBrush}" Background="{DynamicResource WindowBackgroundBrush}" Padding="26,6">
             <DockPanel><ui:SymbolIcon Symbol="Info24" Width="16" Height="16" Margin="0,0,8,0" Foreground="{DynamicResource ComboBoxIconBrush}"/><TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center"/></DockPanel>
         </Border>
     </Grid>
